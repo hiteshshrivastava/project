@@ -89,3 +89,12 @@ On Nifi canvas click upload template and browse for below template xml
 
 Setup Twitter API Secrets/Token properties
 ![Template](images/nifi_get_twitter_processor.png)
+
+
+### Execution
+
+### Start the Nifi Flow Process Group
+### Start Spark with below command
+```
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --master spark://192.168.64.9:30191 ./pyspark /tweet_sentiment_analysis.py
+```
