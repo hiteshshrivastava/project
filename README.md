@@ -142,3 +142,8 @@ spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --
 #### Tweets per location
 
 ![Template](images/dashboard_tweets_location.png)
+
+#### Tweets Sentiment Analysis
+
+![Template](images/twitter_sentiment_1.png)
+![Template](images/twitter_sentiment_2.png)
