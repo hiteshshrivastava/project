@@ -96,5 +96,5 @@ Setup Twitter API Secrets/Token properties
 #### Start the Nifi Flow Process Group
 #### Start Spark with below command
 ```
-spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --master spark://192.168.64.9:30191 ./pyspark /tweet_sentiment_analysis.py
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --master spark://192.168.64.9:30191 ./pyspark /tweet_sentiment_analysis.py zookeeper-headless.project.svc.cluster.local:2181 tweets_demo_1
 ```
