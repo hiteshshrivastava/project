@@ -23,9 +23,7 @@ def process(time, rdd):
         sqlContext = getSqlContextInstance(rdd.context)
 
         # Convert RDD[String] to RDD[Row] to DataFrame
-        #rowRdd = rdd.map(lambda w: Row(word=w))
         rowRdd = rdd.map(lambda w: Row(word=w[0], cnt=w[1]))
-        #rowRdd.pprint()
         wordsDataFrame = sqlContext.createDataFrame(rowRdd)
         wordsDataFrame.show()
 
