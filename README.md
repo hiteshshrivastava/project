@@ -137,8 +137,8 @@ spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --
 
 #### Trending Tweets
 
-![Template](images/trending_hashtags)
+![Template](images/trending_hashtags.png)
 
 #### Tweets per location
 
-![Template](images/dashboard_tweets_location)
+![Template](images/dashboard_tweets_location.png)
