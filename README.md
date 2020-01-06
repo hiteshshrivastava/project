@@ -80,11 +80,12 @@ kubectl create -n project -f ./kubernetes/mongodb-charts.yaml
 
 #### Import NiFi Template 
 
-Open Nifi Canvas
-![Template](images/nifi_flow.png)
-
 On Nifi canvas click upload template and browse for below template xml
 * [Template](nifi-templates/twitter_analysis_process_group_demo.xml) - twitter_analysis_process_group_demo.xml
 
-Setup Twitter API Secrets/Token properties
 ![Template](images/nifi_template_import.png)
+
+![Template](images/nifi_flow.png)
+
+Setup Twitter API Secrets/Token properties
+![Template](images/nifi_get_twitter_processor.png)
