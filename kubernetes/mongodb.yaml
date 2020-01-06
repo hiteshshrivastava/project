@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-headless
+  labels:
+    app: mongo
+spec:
+  ports:
+    - name: database
+      port: 27017
+      targetPort: database
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-lb
+  labels:
+    app: mongo
+spec:
+  type: "LoadBalancer"
+  ports:
+    - name: database
+      port: 27017
+      targetPort: database
+  selector:
+    app: mongo
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: mongo-pdb
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  maxUnavailable: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  serviceName: mongo-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        imagePullPolicy: Always
+        image: "mongo:latest"
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: demo
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: root
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: root
+        - name: MONGO_NON_ROOT_PASSWORD
+          value: demo
+        - name: MONGO_NON_ROOT_USERNAME
+          value: demo
+        ports:
+        - containerPort: 27017
+          name: database
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 8Gi

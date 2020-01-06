@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nifi-headless
+  labels:
+    app: nifi
+spec:
+  ports:
+    - name: server
+      port: 8080
+      targetPort: server
+    - name: cluster
+      port: 8082
+      targetPort: cluster
+  clusterIP: None
+  selector:
+    app: nifi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nifi-lb
+  labels:
+    app: nifi
+spec:
+  type: "LoadBalancer"
+  ports:
+    - name: server
+      port: 8080
+      targetPort: server
+    - name: cluster
+      port: 8082
+      targetPort: cluster
+  selector:
+    app: nifi
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: nifi-pdb
+spec:
+  selector:
+    matchLabels:
+      app: nifi
+  maxUnavailable: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nifi
+spec:
+  selector:
+    matchLabels:
+      app: nifi
+  serviceName: nifi-headless
+  replicas: 1 
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: nifi
+    spec:
+      containers:
+      - name: nifi
+        imagePullPolicy: Always
+        image: "apache/nifi:latest"
+        env:
+        - name: NIFI_CLUSTER_IS_NODE
+          value: "true"
+        - name: NIFI_CLUSTER_NODE_PROTOCOL_PORT
+          value: "8082"
+        - name: NIFI_ELECTION_MAX_WAIT
+          value: 1 mi
+        - name: NIFI_WEB_HTTP_PORT
+          value: "8080"
+        - name: NIFI_ZK_CONNECT_STRING
+          value: zookeeper-headless.project.svc.cluster.local:2181
+        ports:
+        - containerPort: 8080
+          name: server
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000

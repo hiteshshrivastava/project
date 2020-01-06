@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-worker-lb
+  labels:
+    app: spark-worker
+spec:
+  type: "LoadBalancer"
+  ports:
+    - name: worker
+      port: 8080
+      targetPort: worker
+  selector:
+    app: spark-worker
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: spark-worker-pdb
+spec:
+  selector:
+    matchLabels:
+      app: spark-worker
+  maxUnavailable: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spark-worker
+spec:
+  selector:
+    matchLabels:
+      app: spark-worker
+  serviceName: spark-worker-lb
+  replicas: 2
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+    spec:
+      containers:
+      - name: spark-worker
+        imagePullPolicy: Always
+        image: "bitnami/spark:latest"
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED
+          value: "no"
+        - name: SPARK_MASTER_URL
+          value: spark://spark-master-headless.project.svc.cluster.local:7077
+        - name: SPARK_MODE
+          value: worker
+        - name: SPARK_RPC_AUTHENTICATION_ENABLED
+          value: "no"
+        - name: SPARK_RPC_ENCRYPTION_ENABLED
+          value: "no"
+        - name: SPARK_SSL_ENABLED
+          value: "no"
+        - name: SPARK_WORKER_CORES
+          value: "1"
+        - name: SPARK_WORKER_MEMORY
+          value: 1G
+        ports:
+        - containerPort: 8080
+          name: worker
+      securityContext:
+        runAsUser: 0

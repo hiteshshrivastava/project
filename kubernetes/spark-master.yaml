@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master-headless
+  labels:
+    app: spark-master
+spec:
+  ports:
+    - name: server
+      port: 8080
+      targetPort: server
+    - name: master
+      port: 7077
+      targetPort: master
+  clusterIP: None
+  selector:
+    app: spark-master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master-lb
+  labels:
+    app: spark-master
+spec:
+  type: "LoadBalancer"
+  ports:
+    - name: server
+      port: 8080
+      targetPort: server
+    - name: master
+      port: 7077
+      targetPort: master
+  selector:
+    app: spark-master
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: spark-master-pdb
+spec:
+  selector:
+    matchLabels:
+      app: spark-master
+  maxUnavailable: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spark-master
+spec:
+  selector:
+    matchLabels:
+      app: spark-master
+  serviceName: spark-master-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: spark-master
+    spec:
+      containers:
+      - name: spark-master
+        imagePullPolicy: Always
+        image: "bitnami/spark:latest"
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED
+          value: "no"
+        - name: SPARK_MODE
+          value: master
+        - name: SPARK_RPC_AUTHENTICATION_ENABLED
+          value: "no"
+        - name: SPARK_RPC_ENCRYPTION_ENABLED
+          value: "no"
+        - name: SPARK_SSL_ENABLED
+          value: "no"
+        ports:
+        - containerPort: 8080
+          name: server
+        - containerPort: 7077
+          name: master
+      securityContext:
+        runAsUser: 0

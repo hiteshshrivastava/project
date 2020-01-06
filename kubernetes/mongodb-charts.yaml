@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-charts
+spec:
+  selector:
+    matchLabels:
+      app: mongo-charts
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongo-charts
+    spec:
+      containers:
+      - name: mongo-charts
+        imagePullPolicy: Always
+        image: "quay.io/mongodb/charts:latest"
+        env:
+        - name: CHARTS_MONGODB_URI
+          value: "mongodb://root:root@mongo-headless.project.svc.cluster.local:27017"
+        - name: CHARTS_SUPPORT_WIDGET_AND_METRICS
+          value: "on"
+        ports:
+        - containerPort: 80
+          name: database
+        volumeMounts:
+        - mountPath: /mongodb-charts/volumes/keys
+          name: keys
+        - mountPath: /mongodb-charts/volumes/logs
+          name: logs
+        - mountPath: /mongodb-charts/volumes/db-certs
+          name: db-certs
+        - mountPath: /mongodb-charts/volumes/web-certs
+          name: web-certs
+      volumes:
+      - hostPath:
+          path: /tmp/keys
+        name: keys
+      - hostPath:
+          path: /tmp/logs
+        name: logs
+      - hostPath:
+          path: /tmp/db-certs
+        name: db-certs
+      - hostPath:
+          path: /tmp/web-certs
+        name: web-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-charts
+  labels:
+    app: mongo-charts
+spec:
+  type: "NodePort"
+  ports:
+    - port: 80
+      name: https
+  publishNotReadyAddresses: true
+  selector:
+    app: mongo-charts
