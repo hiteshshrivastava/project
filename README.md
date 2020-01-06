@@ -64,6 +64,16 @@ kubectl create -n project -f ./kubernetes/spark-worker.yaml
 ![Setup Spark](images/spark_creation.png)
 
 
+Install required python packages for Pyspark
+```
+kubectl exec -it spark-master-0 -n project -- pip install pymongo
+kubectl exec -it spark-worker-0 -n project -- pip install pymongo
+kubectl exec -it spark-worker-1 -n project -- pip install pymongo
+kubectl exec -it spark-master-0 -n project -- pip install textblob
+kubectl exec -it spark-worker-0 -n project -- pip install textblob
+kubectl exec -it spark-worker-1 -n project -- pip install textblob
+```
+
 #### 7. Set-up MongoDB
 
 ```
@@ -100,5 +110,5 @@ Setup Twitter API Secrets/Token properties
 #### Start the Nifi Flow Process Group
 #### Start Spark with below command
 ```
-spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --master spark://192.168.64.9:30191 ./pyspark /tweet_sentiment_analysis.py zookeeper-headless.project.svc.cluster.local:2181 tweets_demo_1
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 --master spark://192.168.64.9:30191 pyspark/tweet_sentiment_analysis.py zookeeper-headless.project.svc.cluster.local:2181 tweets_demo_1
 ```
