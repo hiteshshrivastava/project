@@ -106,7 +106,7 @@ kubectl get -n project all
 minikube dashboard
 ```
 
-![Template](images/minikube dashboard.png)
+![Template](images/minikube_dashboard.png)
 
 ![Template](images/kubernetes_dashboard.png)
 
