@@ -1,4 +1,4 @@
-# Real Time Data Prcoessing using Nifi/Kafka/Spark on Kubernetes
+# Real Time Data Processing using Nifi/Kafka/Spark on Kubernetes
 
 This is a demo project to demonstrate real time data processing service using a cluster of machines. In this use nifi ingest twitter feed from tweeter developer api and publish it to Kafka topic. Pyspark consume this kafka topic message and perform some transformations like counting the words in a tweet and also storing the messages to a mongodb database. 
 
